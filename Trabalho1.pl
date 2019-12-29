@@ -23,17 +23,6 @@ LITERAL: ~q, q, ou seja, é o simbolo proposicional ou a negação desse
 
 simb_prop(P):- not(P = neg  X),not(P = X  e  Y), not(P = X ou Y), not(P = X imp Y).
 
-*/ A função literal/1 recebe como argumento X ou a sua negação e verifica se X é ou não um símbolo proposicional*/
-
-literal( X ):- simb_prop(X) .
-literal( neg X ):- simb_prop(X) .
-
-/* As funções implicações/1, conj/1, disj/1 recebem como argumentos X imp Y, X e Y, X ou Y, respetivamente, e verifica se X e Y são símbolos proposicionais*/
-
-implicações( X  imp  Y ):- literal(X),literal(Y).
-conj(X e Y):-literal(X),literal(Y).
-disj(X ou Y):-literal(X),literal(Y).
-
 /* A função concatena/3 é tal que concatena(L1,L2,L3) recebe como argumentos três listas e tem valor verdadeiro se L3 é a lista que resulta de juntar L1 e L2*/
 
 concatena([],L,L).
@@ -44,13 +33,13 @@ concatena([X|R],L,[X|S]):-concatena(R,L,S).
 membro(X, [X | _]).
 membro(X, [_ | C]):-membro(X, C).
 
-/* A função el_rep/2 é tal que el_rep(L1,L2) recebe como argumento uma lista L1 e tem valor verdadeiro se L2 é a lista que resulta de retirar de L1 todas exceto a última ocorrência de um elemento*/
+/* A função el_rep/2 é tal que el_rep(L1,L2) recebe como argumento uma lista L1 e tem valor verdadeiro se L2 é a lista que resulta de retirar de L1 todas as ocorrências, exceto a última, de um elemento*/
 
 el_rep([],[]).
 el_rep([X|R],[X|S]):-not(membro(X,R)),el_rep(R,S).
 el_rep([X|R],S):-membro(X,R),el_rep(R,S).
 
-/* A função lista_s1/2 é tal que lista_s1(X,E) recebe como argumento uma fórmula de L¬,∧,∨,→ e devolve uma lista E com os símbolos proposicionais de F, sem repetições*/
+/* A função lista_s1/2 é tal que lista_s1(X,E) recebe como argumento X,uma fórmula de L¬,∧,∨,→, e devolve uma lista E com os símbolos proposicionais de X, sem repetições*/
 
 lista_s1([X1],[X1]):-simb_prop(X1).
 lista_s1([neg X1],[X1]):-simb_prop(X1).
@@ -96,13 +85,12 @@ lista_s1([X1 imp  X2|F],E):-not(simb_prop(X2)),simb_prop(X1),lista_s1([X2],S),co
 lista_s1([X1 imp  X2|F],E):-not(simb_prop(X1)),not(simb_prop(X2)),lista_s1([X1],S),lista_s1([X2],R),concatena(S,R,L2),lista_s1(F,L3),concatena(L2,L3,L),el_rep(L,E).
 
 
-/*tem o valor verdadeiro se N é um número natural (positivo) e X é o elemento que está na posição N da lista L*/
+/*A função enesimo/3 é tal que enesimo(N,L,X) tem o valor verdadeiro se N é um número natural e X é o elemento que está na posição N da lista L*/
 enesimo(1,[X|L],X).
 enesimo(N,[X|L],Y):-enesimo(N1,L,Y), N is N1+1.
 
-/* A função valor_log/4 é tal que valor_log(F,S,L,V) recebe como argumentos uma fórmula de L¬,∧,∨,→ (F), uma lista com os
-símbolos proposicionais de F (S), uma lista de zeros e uns com o mesmo comprimento de S (L) e devolve o valor lógico da fórmula F
-para a lista L*/
+/* A função valor_log/4 é tal que ao executar uma consulta do tipo valor_log(F,S,L,V), onde F é uma fórmula (qualquer) de L¬,∧,∨,→, S uma lista (sem elementos repetidos) constituída pelos símbolos proposicionais que ocorrem nessa fórmula e L uma lista de zeros e uns com o mesmo comprimento que a lista S, este deve devolver como output V = x, onde x é o valor lógico atribuído à fórmula F por qualquer valoração v que atribui a cada
+símbolo proposicional ocorrendo na lista S o valor lógico que ocorre na posição correspondente na lista L */
 
 valor_log(F,S,L,V):-enesimo(N,S,F),enesimo(N,L,V). /*Se F é o elemento que esta na posição N da lista S, então o valor lógico de F é o valor que esta na posição N da lista L*/
 valor_log(neg X,S,L,0):-valor_log(X,S,L,1).
@@ -117,8 +105,8 @@ valor_log(X ou Y,S,L,1):-valor_log(X,S,L,1).
 valor_log(X ou Y,S,L,1):-valor_log(Y,S,L,1).
 valor_log(X ou Y,S,L,0):-valor_log(X,S,L,0),valor_log(Y,S,L,0).
 
-/*A função val_sat_list_form/3 é tal que val_sat_list_form(F,S,V) recebe como argumento uma fórmula de L¬,∧,∨,→ (F), uma lista com
-os símbolos proposicionais de F (S) e uma lista de zeros e uns com o mesmo comprimento de S (V) e verifica se V satisfaz F, isto é,
+/*A função val_sat_list_form/3 é tal que val_sat_list_form(F,S,V) recebe como argumento F sendo este uma fórmula de L¬,∧,∨,→ , uma lista S com
+os símbolos proposicionais de F e uma lista V de zeros e uns, com o mesmo comprimento de S, e verifica se V satisfaz F, isto é,
 se F é verdadeiro para a valoração V*/
 
 val_sat_list_form(F,S,V):- valor_log(F,S,V,1).
@@ -131,22 +119,17 @@ Esta função usa a função auxiliar val_sat_list_form/3*/
 val_sat_list_form2([],S,V).
 val_sat_list_form2([F|T],S,V):-val_sat_list_form(F,S,V),val_sat_list_form2(T,S,V).
 
-/*A função acrescenta/3 é tal que acrescenta... */
+/*A função acrescenta/3 é tal que acrescenta(X,L1,L2) tem o valor verdadeiro se L2 é a lista que resulta de colocar o elemento X na cabeça da lista L1 */
 acrescenta([],[],[]).
 acrescenta([],[X1|R],[X1|S]):-acrescenta([],R,S).
 acrescenta([X1|R],L,[X1|S]):-acrescenta(R,L,S).
-
-/* A função elimina/2 él tal que elimina(L,R)
-
-elimina([],R).
-elimina([X1|R],R).
 
 /*A função junta_form/2 é tal que junta_form(L,S) recebe uma lista de fórmulas e une-as com e*/
 junta_form([X|[]],X).
 junta_form([R|L],S):-junta_form(L,P), S= R e P.
 
 /* O predicado lista_n_0s_e_1s/2 é tal que lista_n_0s_e_1s(N,L) dado um inteiro não negativo N,
-esta função tem um valor verdadeiro se e so se L for uma lista de comprimento N composta apenas por 0 e por 1.*/
+esta função tem um valor verdadeiro se e so se L for uma lista de comprimento N composta apenas por 0's e por 1's.*/
 lista_n_0s_e_1s(0,[]). 
 lista_n_0s_e_1s(N,[0|R]):-N>0, N1 is N-1, lista_n_0s_e_1s(N1,R).
 lista_n_0s_e_1s(N,[1|R]):-N>0, N1 is N-1, lista_n_0s_e_1s(N1,R).
@@ -161,18 +144,18 @@ todas_listas_n_0s_e_1s(N,T):-findall(L,lista_n_0s_e_1s(N,L),T).
 comprimento([],0).
 comprimento([_|X],N):-comprimento(X,N1),N is N1+1.
 
-/*Dá todas as valorações possíveis para uma determinada lista de simbolos proposicionais, de acordo com o seu tamanho*/
+/*lista_val/2 devolve todas as valorações possíveis para uma determinada lista de símbolos proposicionais com comprimento N*/
 lista_val([X|Y],T):-comprimento([X|Y],N),todas_listas_n_0s_e_1s(N,T).
 
-/*Recebe a lista de todas as valorações, a formula, a lista de simbolos proposicionais e retorna a lista com as valorações que satisfazer a formula*/
+/* A função aux_lista_val_12/4 é tal que aux_lista_val_12(X,F,S,Y), onde X é a lista de listas de todas as valorações possíveis para a fórmula presente em F, S é a lista de símbolos proposicionais na fórmula F e Y é a lista das valorações presentes em X que satisfazem a fórmula F*/
 aux_lista_val_12([],F,S,[]).
 aux_lista_val_12([X1|L],F,S,[X1|L2]):-valor_log(F,S,X1,1),aux_lista_val_12(L,F,S,L2).
 aux_lista_val_12([X1|L],F,S,L2):-not(valor_log(F,S,X1,1)),aux_lista_val_12(L,F,S,L2).
 
-/*Serve para que se possa gerar a lista com todas as valorações possíveis sendo que retorna as que verificam*/
-
+/*A função lista_val_1/3 é tal que lista_val_1(F,S,V), onde F é uma fórmula da linguagem em uso, S é uma lista de símbolos proposicionais de F e V é a lista das valorações que satisfazem a fórmula em F*/
 lista_val_1(F,S,V):-lista_val(S,T),aux_lista_val_12(T,F,S,V).
 
+/*A função lista_val_12/3 é tal que lista_val_12(F,S,L), onde F é uma fórmula da linguagem em uso, S é uma lista de símbolos proposicionais de F e L é uma lista com as listas das valorações que satisfazem a fórmula em F */
 lista_val_12(F,S,L):-findall(V,lista_val_1(F,S,V),N),el_rep(N,L).
 
 /* O argumento final/1, final(L), é tal que recebe uma lista de fórmulas de L¬,∧,∨,→  e devolve uma lista com os símbolos
