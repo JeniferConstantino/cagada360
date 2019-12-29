@@ -112,8 +112,8 @@ se F é verdadeiro para a valoração V*/
 val_sat_list_form(F,S,V):- valor_log(F,S,V,1).
 
 /*A função val_sat_list_form2/3 é tal que val_sat_list_form(F,S,V) recebe como argumento uma lista de fórmulas de L¬,∧,∨,→ (F), uma lista com
-os símbolos proposicionais de F (S) e uma lista de zeros e uns com o mesmo comprimento de S (V) e verifica se V satisfaz F, isto é, 
-se a valoração V é verdadeiro para cada uma das fórmulas em F. 
+os símbolos proposicionais de F (S) e uma lista de zeros e uns com o mesmo comprimento de S (V) e verifica se V satisfaz F, isto é,
+se a valoração V é verdadeiro para cada uma das fórmulas em F.
 Esta função usa a função auxiliar val_sat_list_form/3*/
 
 val_sat_list_form2([],S,V).
@@ -130,14 +130,14 @@ junta_form([R|L],S):-junta_form(L,P), S= R e P.
 
 /* O predicado lista_n_0s_e_1s/2 é tal que lista_n_0s_e_1s(N,L) dado um inteiro não negativo N,
 esta função tem um valor verdadeiro se e so se L for uma lista de comprimento N composta apenas por 0's e por 1's.*/
-lista_n_0s_e_1s(0,[]). 
+lista_n_0s_e_1s(0,[]).
 lista_n_0s_e_1s(N,[0|R]):-N>0, N1 is N-1, lista_n_0s_e_1s(N1,R).
 lista_n_0s_e_1s(N,[1|R]):-N>0, N1 is N-1, lista_n_0s_e_1s(N1,R).
 
 /*O predicado todas_listas_n_0s_e_1s/2 permite obter, para um qualquer número inteiro não negativo N dado, uma lista formada por todas as
 listas de comprimento N que são compostas apenas por zeros e uns.*/
 
-todas_listas_n_0s_e_1s(N,T):-findall(L,lista_n_0s_e_1s(N,L),T). 
+todas_listas_n_0s_e_1s(N,T):-findall(L,lista_n_0s_e_1s(N,L),T).
 
 /*O argumento comprimento/2, comprimento(L,N) dá o comprimento de uma lista L*/
 
@@ -168,12 +168,9 @@ final(L):-lista_s1(L,S),junta_form(L,F),lista_val_12(F,S,M),write(S),write(M).
 
 
 
-
-
-
-
 /*EXERCICIO 2: Verifica se é ou não consequencia semnatica e manda um exemplo de valoração caso não o seja */
 
+/*Recebe duas listas e retorna uma lista com os elementos em comum*/
 intersect([],L,[]).
 intersect([X|R],L,[X|Z]):-membro(X,L),intersect(R,L,Z).
 intersect([X|R],L,Z):-not(membro(X,L)),intersect(R,L,Z).
@@ -194,30 +191,23 @@ lista_concatenada([],[]):-!.
 lista_concatenada([L|Ls],ListaJunta):-!,lista_concatenada(L,NewL),lista_concatenada(Ls,NewLs),concatena(NewL, NewLs, ListaJunta). /*Concatena uma lista de listas*/
 lista_concatenada(L,[L]).
 
-
 consequencia_semantica_aux(T,R1,M,M2,S,R2):- valor_log(T,S,R1,1), write('É consequencia semantica').
 consequencia_semantica_aux(T,R1,M,M2,S,R2):-valor_log(T,S,R1,0), intersect(M,M2,L), write(' Não é consequencia semantica, valorações: '),write(L).
 
-consequencia_semantica(F,T):-lista_s1(F,S), junta_form(F,H), lista_val_1(H,S,M),lista_concatenada(M,R1),lista_val_0(T,S,M2),lista_concatenada(M2,R2),consequencia_semantica_aux(T,R1,M,M2,S,R2). /*R1 é a lista de valorações concatenadas que satisfaz F, M é a lista das valorações que satisfaz F sem serem concatenadas e R2 é a lista que não satisfaz T, M2 é a lista das valorações concatenadas que não satisfazem T*/
-
+/*Funciona para algo do genero: consequencia_sematica([p imp (r imp q), r ou q], r imp q). Assim recebe como argumentos F que corresponde á primeira lista e T que corresponde á formula. S é o conjunto dos simbolos proposicionais de F que se obtem de lista_s1, H é a lista que se obtem da função junta_form (tem uma lista de formulas e une-as), M é a lista das valorações que satisfaz F, R1 é a lista das valorações concatenadas que satisfaz F, M2 é a lista das valorações concatenadas que não satisfazem T, R2 é uma lista que contem as valorações que satisfazem uma formula concatenada numa so lista. Assim, esta função chama a função consequencia_semantica_aux(T,R1,M,M2,S,R2) que vai verificar se são ou não efetivamente consequencias semantica*/
+consequencia_semantica(F,T):-lista_s1(F,S), junta_form(F,H), lista_val_1(H,S,M),lista_concatenada(M,R1),lista_val_0(T,S,M2),lista_concatenada(M2,R2),consequencia_semantica_aux(T,R1,M,M2,S,R2).
 
 
 
 /*Exercicio 3*/
 
-/* O argumento elimina_listas/2, elimina listas(H,S), é tal que recebe uma lista de lista de listas e devolve uma lista de listas*/
-
 elimina_listas2(H,S):-H=[P|T],S=[P|T].
 elimina_listas([L|T],H):-L=[R|S],H=[R|S],elimina_listas2(H,P).
 
-/* O argumento valor_log_a/4, valor_log_a(F,S,L,V), é tal que recebe uma lista com uma fórmula de L¬,∧,∨,→, uma lista com os
-símbolos proposicionais de F, sem repetições, uma lista de listas de valorações, e retorna true se L satisfaz F, V=1, ou false,
-V=0, caso contrário*/
 valor_log_a(F,S,[],V).
 valor_log_a(F,S,[L|T],V):-valor_log(F,S,L,V),valor_log_a(F,S,T,V).
 
-/*O argumento consequencia_semantica_adap/2, consequencia_semantica_adap(F,P), tem valor verdadiro se T é consequência semântica
-de F*/
+/*esta consequencia_sematica_adptada manda apenas true or false se for consequencia semantica */
 consequencia_semantica_adap([],[]).
 consequencia_semantica_adap(F,T):-lista_s1(F,S),junta_form(F,H), lista_val_12(H,S,M), elimina_listas(M,R), valor_log_a(T,S,R,1).
 
@@ -229,8 +219,7 @@ junta_elem_listaconj(E,[X|R],[[E|X]|S]):-junta_elem_listaconj(E,R,S).
 partes([],[[]]).
 partes([X|R],P):-partes(R,S),junta_elem_listaconj(X,S,T),concatena(S,T,P).
 
-/*Recebe como argumentos a lista de formulas, conjunto(L), Uma formula F para verificar se é consequencia semantica e devolve uma lista apenas comaquelas formulas das partes de L que são consequencia semantica, C.*/
-
+/*Recebe como argumentos a lista de formulas, conjunto(L), Uma formula F para verificar se é consequencia semantica e devolve uma lista apenas com aquelas formulas das partes de L que são consequencia semantica, C.*/
 partes_cs_aux([],F,[]).
 partes_cs_aux([P1|P],F,[P1|C]):-consequencia_semantica_adap(P1,F), partes_cs_aux(P,F,C).
 partes_cs_aux([P1|P],F,C):-not(consequencia_semantica_adap(P1,F)), partes_cs_aux(P,F,C).
@@ -242,6 +231,7 @@ partes_cs(L,F,C):-partes(L,P),partes_cs_aux(P,F,C).
  conjunto
  Um conjunto para ser minimal não precisa de estar contido noutro */
 
+/*Acrescenta apenas um elemento ao inicio da lista*/
 acrescenta_adap4(X,L2,[X|L2]).
 
 
@@ -251,7 +241,7 @@ nao_contido4([X1|L],A):-partes(A,P),not(membro(X1,P)),nao_contido4(L,A).
 
 
 /*Manda a lista dos conjuntos minimais(M), recebendo como argumentos uma lista de listas em que cada uma dessas listas contem formulas. Enquanto isso vai guardando os elementos numa lista [Y1,L2] para que eles possam continuar a ser comparados*/
-lista_minimais4([X1],[Y1,L2],[X1]):-nao_contido4([Y1|L2],X1),acrescenta_adap4(X1,[Y1|L2],L3). /*Base de indução: quando so tem um ultimo elementona lista, L2 esta cheia e os elementos de L2 nao estão contidos em X1. Logo X1 é um minimal.*/
+lista_minimais4([X1],[Y1,L2],[X1]):-nao_contido4([Y1|L2],X1),acrescenta_adap4(X1,[Y1|L2],L3). /*Base de indução: quando so tem um ultimo elemento na lista, L2 esta cheia e os elementos de L2 nao estão contidos em X1. Logo X1 é um minimal.*/
 lista_minimais4([X1],[Y1|L2],[]):-not(nao_contido4([Y1|L2],X1)),acrescenta_adap4(X1,[Y1|L2],L3). /*Base de inducao: quando so tem um ultimo elemento na lista, L2 esta cheia e os elementos de L2 estão contidos em X1. Logo X1 não é um minimal*/
 lista_minimais4([X1|L],[],[X1|M]):-nao_contido4(L,X1),acrescenta_adap4(X1,[],L3),lista_minimais4(L,L3,M). /*nenhum elem de L esta contido em X1 e a L2 é vazia*/
 lista_minimais4([X1|L],[],M):-not(nao_contido4(L,X1)),acrescenta_adap4(X1,[],L3),lista_minimais4(L,L3,M). /*elem de L esta contido em X1 e a lista L2 esta vazia*/
@@ -260,34 +250,5 @@ lista_minimais4([X1|L],[Y1|L2],M):-not(nao_contido4(L,X1)),nao_contido4([Y1|L2],
 lista_minimais4([X1|L],[Y1|L2],M):-nao_contido4(L,X1),not(nao_contido4([Y1|L2],X1)),acrescenta_adap4(X1,[Y1|L2],L3),lista_minimais4(L,L3,M). /*Elemda lista L2 esta contido em X1 mas nenhum elem de L esta contido em X1. X1 deixa de ser minimal porque tem elementos de outros conjuntos contidos nele, logo nao vai para a lista M.*/
 lista_minimais4([X1|L],[Y1|L2],M):-not(nao_contido4(L,X1)),not(nao_contido4([Y1|L2],X1)),acrescenta_adap4(X1,[Y1|L2],L3),lista_minimais4(L,L3,M). /*Elem da lista L e L2 estão contidos em X1. X1 deixa de ser um minimal porque tem elementos de outros conjuntos contidos nele, logo nao vai para a lista M.*/
 
-/*Recebe como argumentos uma lista de formulas,F, uma formula F1 (para selecionar os elementos de F que são consequencia semantica */
+/*Funciona para: exercicio3([p imp q, p ou q, p ,q],q). Recebe como argumentos uma lista de formulas,F, uma formula F1 (para selecionar os elementos de F que são consequencia semantica */
 exercicio3(F,F1):-partes_cs(F,F1,C),lista_minimais4(C,[],M),write(M).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
