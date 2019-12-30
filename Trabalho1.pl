@@ -1,3 +1,12 @@
+/* María Isabel Diaz Andrade 2092318
+Pedro Tomás Gomes Temtem 2044118
+Sara Melissa Azevedo Freitas 2048518
+Jénifer Graça Gouveia Constantino 2045618
+Elimar Adriana Gonçalves Medina 2045018
+Luana Filipa Ribeiro Queiroz Mendonça 2047618 */
+
+
+
 :-op(100, fy, 'neg').
 :-op(200, xfy, 'e').
 :-op(300, xfy, 'ou').
